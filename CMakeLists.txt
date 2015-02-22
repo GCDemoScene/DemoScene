@@ -16,6 +16,8 @@ include_directories(thirdParty/glew-1.12.0/include)
 add_definitions(-DGLEW_STATIC=1)
 add_subdirectory(thirdParty/glew-1.12.0)
 
+include_directories(thirdParty/glm)
+
 set(ALL_LIBRARIES GLEW ${OPENGL_LIBRARIES} ${SFML_LIBRAIRIES})
 
 include_directories(./project/include)
