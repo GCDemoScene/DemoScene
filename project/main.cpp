@@ -4,6 +4,7 @@
 int main()
 {
     DemoScene scene;
+    scene.initScene();
     scene.runScene();
 
     return 0;

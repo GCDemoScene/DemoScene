@@ -22,3 +22,7 @@ set(ALL_LIBRARIES GLEW ${OPENGL_LIBRARIES} ${SFML_LIBRAIRIES})
 
 include_directories(./project/include)
 add_subdirectory(project)
+
+#Copy some ressources like shaders, gui files,etc...
+file(COPY ./project/src/shaders/ DESTINATION project/src/shaders)
+file(COPY ./project/resources/ DESTINATION project/resources)

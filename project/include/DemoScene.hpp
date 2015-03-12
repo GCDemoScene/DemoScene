@@ -1,6 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <GL/glew.h>
+#include "Camera.hpp"
+#include "Program.hpp"
+#include "Cube.hpp"
 
 class DemoScene
 {
@@ -8,6 +11,7 @@ public:
     DemoScene();
     int initScene();
     void runScene();
+    bool checkError(const char* title);
 
     uint getFPS() const;
     uint getWindowWidth() const;
@@ -20,4 +24,13 @@ private:
     const uint FRAMERATE_MILLISECONDS;
     GLenum glewCode;
     sf::RenderWindow window;
+    Camera camera;
+    Program program;
+
+    // Uniforms
+    GLuint diffuseLocation;
+    GLuint cameraLocation;
+    GLuint mvpLocation;
+
+    Cube cube;
 };
