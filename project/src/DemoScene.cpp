@@ -56,99 +56,119 @@ void DemoScene::runScene()
     sf::Time framerate = sf::milliseconds(FRAMERATE_MILLISECONDS);
 
     // event variables
-    int current_x, current_y, last_x, last_y;
-    float factorZoom = 0.5;
+    int last_x, last_y;
+    bool hasClicked = false;
 
     while (window.isOpen())
     {
         clock.restart();
 
         /// Events ( Handle input )
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            // on regarde le type de l'évènement...
-            switch (event.type)
-            {
-                case sf::Event::KeyPressed :
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-                        window.close();
-                    break;
-
-                case sf::Event::MouseButtonPressed :
-                    last_x = event.mouseButton.x;
-                    last_y = event.mouseButton.y;
-                    break;
-
-                case sf::Event::MouseWheelMoved :
-                    camera.zoom(-event.mouseWheel.delta * factorZoom);
-
-                default:
-                    break;
-            }
-
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            {
-                current_x = sf::Mouse::getPosition(window).x;
-                current_y = sf::Mouse::getPosition(window).y;
-                auto dX = current_x - last_x;
-                auto dY = current_y - last_y;
-                camera.turn(dY * .007f, dX * .007f);
-                last_x = current_x;
-                last_y = current_y;
-            }
-
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
-            {
-                current_x = sf::Mouse::getPosition(window).x;
-                current_y = sf::Mouse::getPosition(window).y;
-                auto dX = current_x - last_x;
-                auto dY = current_y - last_y;
-                camera.pan(dX * .0007f, dY * .0007f);
-                last_x = current_x;
-                last_y = current_y;
-            }
-        }
+        event(last_x, last_y, hasClicked);
 
         /// Update
-
-        // GL Viewport
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        // Default states
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//        window.clear();
-
-        // Get camera matrices
-        glm::mat4 projection = glm::perspective(45.0f, (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 100.f);
-        glm::mat4 worldToView = glm::lookAt(camera.eye, camera.o, camera.up);
-        glm::mat4 objectToWorld;
-        glm::mat4 mvp = projection * worldToView * objectToWorld;
-
-        // Select shader
-        glUseProgram(program.id);
-
-        // Upload uniforms
-        glProgramUniformMatrix4fv(program.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
-        glProgramUniform3f(program.id, cameraLocation, camera.eye.x, camera.eye.y, camera.eye.z);
+        update();
 
         /// Draw
-        cube.render();
-        window.display();
+        render();
 
         checkError("End loop");
 
         elapsedTime = clock.getElapsedTime();
-
         if(elapsedTime < framerate)
         {
             sf::sleep(framerate - elapsedTime);
         }
     }
+}
+
+void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
+{
+    int current_x, current_y;
+
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed)
+            window.close();
+
+        switch(event.type)
+        {
+            case sf::Event::KeyPressed :
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                    window.close();
+                break;
+
+            case sf::Event::MouseButtonPressed :
+                last_x = event.mouseButton.x;
+                last_y = event.mouseButton.y;
+                hasClicked = true;
+                break;
+
+            case sf::Event::MouseButtonReleased :
+                hasClicked = false;
+                break;
+
+            case sf::Event::MouseWheelMoved :
+                camera.zoom(-event.mouseWheel.delta * .2f);
+                break;
+
+            default:
+                break;
+        }
+
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && hasClicked == true)
+        {
+            current_x = sf::Mouse::getPosition(window).x;
+            current_y = sf::Mouse::getPosition(window).y;
+            auto dX = current_x - last_x;
+            auto dY = current_y - last_y;
+            camera.turn(dY * .007f, dX * .007f);
+            last_x = current_x;
+            last_y = current_y;
+        }
+
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Right) && hasClicked == true)
+        {
+            current_x = sf::Mouse::getPosition(window).x;
+            current_y = sf::Mouse::getPosition(window).y;
+            auto dX = current_x - last_x;
+            auto dY = current_y - last_y;
+            camera.pan(dX * .0007f, dY * .0007f);
+            last_x = current_x;
+            last_y = current_y;
+        }
+    }
+}
+
+void DemoScene::update()
+{
+    // GL Viewport
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // Default states
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        window.clear();
+
+    // Get camera matrices
+    glm::mat4 projection = glm::perspective(45.0f, (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 100.f);
+    glm::mat4 worldToView = glm::lookAt(camera.eye, camera.o, camera.up);
+    glm::mat4 objectToWorld;
+    glm::mat4 mvp = projection * worldToView * objectToWorld;
+
+    // Upload uniforms
+    glProgramUniformMatrix4fv(program.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
+    glProgramUniform3f(program.id, cameraLocation, camera.eye.x, camera.eye.y, camera.eye.z);
+}
+
+void DemoScene::render()
+{
+    // Select shader
+    glUseProgram(program.id);
+
+    cube.render();
+    window.display();
 }
 
 bool DemoScene::checkError(const char* title)
@@ -182,6 +202,7 @@ bool DemoScene::checkError(const char* title)
     }
     return error == GL_NO_ERROR;
 }
+
 
 // Getters
 uint DemoScene::getFPS() const

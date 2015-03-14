@@ -18,7 +18,6 @@ void Cube::render()
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-
     glBindVertexArray(0);
 }
 

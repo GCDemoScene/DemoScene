@@ -12,6 +12,9 @@ public:
     ~DemoScene();
     int initScene();
     void runScene();
+    void event(int &last_x, int &last_y, bool &hasClicked);
+    void update();
+    void render();
     bool checkError(const char* title);
 
     uint getFPS() const;
