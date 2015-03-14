@@ -9,6 +9,7 @@ class DemoScene
 {
 public:
     DemoScene();
+    ~DemoScene();
     int initScene();
     void runScene();
     bool checkError(const char* title);

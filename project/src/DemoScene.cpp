@@ -14,6 +14,11 @@ DemoScene::DemoScene():
     program.createProgram();
 }
 
+DemoScene::~DemoScene()
+{
+
+}
+
 int DemoScene::initScene()
 {
     if(GLEW_OK != glewCode) {
@@ -50,8 +55,9 @@ void DemoScene::runScene()
     sf::Time elapsedTime;
     sf::Time framerate = sf::milliseconds(FRAMERATE_MILLISECONDS);
 
-    // Viewport
-    glViewport( 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // event variables
+    int current_x, current_y, last_x, last_y;
+    float factorZoom = 0.5;
 
     while (window.isOpen())
     {
@@ -63,14 +69,59 @@ void DemoScene::runScene()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            // on regarde le type de l'évènement...
+            switch (event.type)
+            {
+                case sf::Event::KeyPressed :
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                        window.close();
+                    break;
+
+                case sf::Event::MouseButtonPressed :
+                    last_x = event.mouseButton.x;
+                    last_y = event.mouseButton.y;
+                    break;
+
+                case sf::Event::MouseWheelMoved :
+                    camera.zoom(-event.mouseWheel.delta * factorZoom);
+
+                default:
+                    break;
+            }
+
+            if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                current_x = sf::Mouse::getPosition(window).x;
+                current_y = sf::Mouse::getPosition(window).y;
+                auto dX = current_x - last_x;
+                auto dY = current_y - last_y;
+                camera.turn(dY * .007f, dX * .007f);
+                last_x = current_x;
+                last_y = current_y;
+            }
+
+            if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
+            {
+                current_x = sf::Mouse::getPosition(window).x;
+                current_y = sf::Mouse::getPosition(window).y;
+                auto dX = current_x - last_x;
+                auto dY = current_y - last_y;
+                camera.pan(dX * .0007f, dY * .0007f);
+                last_x = current_x;
+                last_y = current_y;
+            }
         }
 
         /// Update
 
+        // GL Viewport
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         // Default states
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        window.clear();
+//        window.clear();
 
         // Get camera matrices
         glm::mat4 projection = glm::perspective(45.0f, (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 100.f);
@@ -133,7 +184,6 @@ bool DemoScene::checkError(const char* title)
 }
 
 // Getters
-
 uint DemoScene::getFPS() const
 {
     return FPS;
