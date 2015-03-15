@@ -164,7 +164,7 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
 }
 
 Planet::Planet()
-    : width(5), height(5), radius(1.f), pathTexture("./project/resources/textures/spnza_bricks_a_diff.tga")
+    : width(5), height(5), radius(1.f), pathTexture("./project/resources/textures/earth.png")
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 
