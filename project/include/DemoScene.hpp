@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include "Camera.hpp"
 #include "Program.hpp"
-#include "Cube.hpp"
+#include "Planet.hpp"
 
 class DemoScene
 {
@@ -12,10 +12,6 @@ public:
     ~DemoScene();
     int initScene();
     void runScene();
-    void event(int &last_x, int &last_y, bool &hasClicked);
-    void update();
-    void render();
-    bool checkError(const char* title);
 
     uint getFPS() const;
     uint getWindowWidth() const;
@@ -31,12 +27,18 @@ private:
         BYEBYEBIRDS
     };
 
+    void event(int &last_x, int &last_y, bool &hasClicked);
+    void update();
+    void render();
+    bool checkError(const char* title);
+
     const uint FPS;
     const uint WINDOW_WIDTH;
     const uint WINDOW_HEIGHT;
     const uint FRAMERATE_MILLISECONDS;
     GLenum glewCode;
     sf::RenderWindow window;
+
     Camera camera;
     Program program;
 
@@ -49,5 +51,8 @@ private:
     GLuint cameraLocation;
     GLuint mvpLocation;
 
-    Cube cube;
+    // Actors
+    Planet planet;
+
+    bool running;
 };

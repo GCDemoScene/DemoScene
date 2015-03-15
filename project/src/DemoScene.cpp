@@ -1,15 +1,20 @@
 #include "DemoScene.hpp"
 #include <iostream>
 #include <chrono>
-#include "Cube.hpp"
+#include "Planet.hpp"
 #include "Shader.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <SFML/OpenGL.hpp>
 
 DemoScene::DemoScene():
     FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), glewCode(glewInit()), state(State::PLANET)
 {
-    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !");
+    // Request a 32-bits depth buffer when creating the window
+    sf::ContextSettings contextSettings;
+    contextSettings.depthBits = 32;
+
+    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, contextSettings);
     glewCode = glewInit();
     program.createProgram();
 }
@@ -40,8 +45,8 @@ int DemoScene::initScene()
     cameraLocation = glGetUniformLocation(program.id, "Camera");
     mvpLocation = glGetUniformLocation(program.id, "MVP");
 
-    cube.initTexture();
-    cube.initBuffers();
+    planet.initTexture();
+    planet.initBuffers();
 
     std::cout << "init scene" << std::endl;
 
@@ -59,7 +64,9 @@ void DemoScene::runScene()
     int last_x, last_y;
     bool hasClicked = false;
 
-    while (window.isOpen())
+    running = true;
+
+    while (running)
     {
         clock.restart();
 
@@ -80,6 +87,7 @@ void DemoScene::runScene()
             sf::sleep(framerate - elapsedTime);
         }
     }
+    window.close();
 }
 
 void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
@@ -96,7 +104,8 @@ void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
         {
             case sf::Event::KeyPressed :
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-                    window.close();
+                    running = false;
+
                 break;
 
             case sf::Event::MouseButtonPressed :
@@ -165,8 +174,8 @@ void DemoScene::update()
             break;
 
         case State::BYEBYEBIRDS :
-            std::cout << "State : ByeByeBirds" << std::endl;
-            changeState(State::PLANET);
+//            std::cout << "State : ByeByeBirds" << std::endl;
+//            changeState(State::PLANET);
             break;
 
         default:
@@ -176,16 +185,11 @@ void DemoScene::update()
 
 void DemoScene::render()
 {
-    // GL Viewport
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-    // Default states
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // window.clear();
 
     // Get camera matrices
-    glm::mat4 projection = glm::perspective(45.0f, (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 100.f);
+    glm::mat4 projection = glm::perspective(45.0f, (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT, 0.1f, 100.f);
     glm::mat4 worldToView = glm::lookAt(camera.eye, camera.o, camera.up);
     glm::mat4 objectToWorld;
     glm::mat4 mvp = projection * worldToView * objectToWorld;
@@ -197,8 +201,13 @@ void DemoScene::render()
     // Select shader
     glUseProgram(program.id);
 
-    cube.render();
+    // GL Viewport
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    planet.render();
     window.display();
+
+    glDisable(GL_DEPTH_TEST);
 }
 
 void DemoScene::changeState(State state)
