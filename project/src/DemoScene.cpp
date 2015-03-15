@@ -7,7 +7,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 DemoScene::DemoScene():
-    FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), glewCode(glewInit())
+    FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), glewCode(glewInit()), state(State::PLANET)
 {
     window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !");
     glewCode = glewInit();
@@ -143,13 +143,46 @@ void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
 
 void DemoScene::update()
 {
+    switch (state) {
+        case State::PLANET :
+            std::cout << "State : Planet" << std::endl;
+            changeState(State::ZOOMPLANET);
+            break;
+
+        case State::ZOOMPLANET :
+            std::cout << "State : ZoomPlanet" << std::endl;
+            changeState(State::BIRDS);
+            break;
+
+        case State::BIRDS :
+            std::cout << "State : Birds" << std::endl;
+            changeState(State::FOLLOWBIRDS);
+            break;
+
+        case State::FOLLOWBIRDS :
+            std::cout << "State : FollowBirds" << std::endl;
+            changeState(State::BYEBYEBIRDS);
+            break;
+
+        case State::BYEBYEBIRDS :
+            std::cout << "State : ByeByeBirds" << std::endl;
+            changeState(State::PLANET);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void DemoScene::render()
+{
     // GL Viewport
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     // Default states
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//        window.clear();
+    // window.clear();
 
     // Get camera matrices
     glm::mat4 projection = glm::perspective(45.0f, (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 100.f);
@@ -160,15 +193,17 @@ void DemoScene::update()
     // Upload uniforms
     glProgramUniformMatrix4fv(program.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
     glProgramUniform3f(program.id, cameraLocation, camera.eye.x, camera.eye.y, camera.eye.z);
-}
 
-void DemoScene::render()
-{
     // Select shader
     glUseProgram(program.id);
 
     cube.render();
     window.display();
+}
+
+void DemoScene::changeState(State state)
+{
+    this->state = state;
 }
 
 bool DemoScene::checkError(const char* title)
@@ -202,7 +237,6 @@ bool DemoScene::checkError(const char* title)
     }
     return error == GL_NO_ERROR;
 }
-
 
 // Getters
 uint DemoScene::getFPS() const

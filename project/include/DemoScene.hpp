@@ -22,6 +22,15 @@ public:
     uint getWindowHeight() const;
 
 private:
+    enum class State
+    {
+        PLANET,
+        ZOOMPLANET,
+        BIRDS,
+        FOLLOWBIRDS,
+        BYEBYEBIRDS
+    };
+
     const uint FPS;
     const uint WINDOW_WIDTH;
     const uint WINDOW_HEIGHT;
@@ -30,6 +39,10 @@ private:
     sf::RenderWindow window;
     Camera camera;
     Program program;
+
+    State state;
+
+    void changeState(State state);
 
     // Uniforms
     GLuint diffuseLocation;
