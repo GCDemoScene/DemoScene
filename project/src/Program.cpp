@@ -30,10 +30,13 @@ GLuint Program::getProgramId()
     }
 }
 
-void Program::loadProgram(GLuint vsID, GLuint fsID)
+void Program::loadProgram(GLuint vsID, GLuint fsID, GLuint gsID)
 {
     glAttachShader(id, vsID);
     glAttachShader(id, fsID);
+    if(gsID)
+        glAttachShader(id, gsID);
+
     glLinkProgram(id);
     if (checkLinkError() < 0)
         exit(1);
