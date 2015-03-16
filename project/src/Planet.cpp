@@ -1,6 +1,7 @@
 #include "Planet.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "simplexnoise.hpp"
 
 void Planet::bind()
 {
@@ -17,9 +18,8 @@ void Planet::render()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(vao);
-//        glDrawElements(GL_LINE_STRIP, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
         glDrawElements(GL_TRIANGLES, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        glDrawElements(GL_LINE_STRIP, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);
 }
 
@@ -78,8 +78,30 @@ void Planet::initBuffers()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
-    std::cout << "bind vao, vbo" << std::endl;
+void Planet::computeHeight(glm::vec3 &vertex)
+{
+    // Get the direction vector from the center of the sphere
+    glm::vec3 normalFromCenter = vertex;
+    normalFromCenter = glm::normalize(normalFromCenter);
+
+    // Variables for the noise
+    static const float HEIGHT_MAX = .2f;
+    static const float HEIGHT_MIN = 0.f;
+    static const float NOISE_PERSISTENCE = 0.5f;
+    static const float NOISE_OCTAVES = 1.5f;
+    static const float NOISE_SCALE = 2.0f;
+
+    // Generate the noise for the position
+    float noise = scaled_octave_noise_3d(NOISE_OCTAVES, NOISE_PERSISTENCE, NOISE_SCALE, HEIGHT_MIN, HEIGHT_MAX, vertex.x, vertex.y, vertex.z);
+
+    // Keep ocean level as base level
+    if(noise <= -0.0f)
+        noise = 0.0f;
+
+    // Displace the position
+    vertex += normalFromCenter * noise;
 }
 
 // For every vertex in the mesh
@@ -121,6 +143,7 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
             }
 
             mapCubeToSphere(pos);
+            computeHeight(pos);
 
             normal = glm::normalize(pos - glm::vec3(0));
 
@@ -164,7 +187,7 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
 }
 
 Planet::Planet()
-    : width(5), height(5), radius(1.f), pathTexture("./project/resources/textures/earth.png")
+    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earth.png")
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 
@@ -178,6 +201,5 @@ Planet::Planet()
 
 Planet::~Planet()
 {
-
 }
 

@@ -33,6 +33,7 @@ struct Planet{
     void initTexture();
     void initBuffers();
 
+    void computeHeight(glm::vec3 &vertex);
     void mapCubeToSphere(glm::vec3 &position);
 
     void createFace(glm::vec3 startPos, Face f);

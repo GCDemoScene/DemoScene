@@ -4,7 +4,7 @@ Camera::Camera()
 {
     m_phi = 3.14/2.f;
     m_theta = 3.14/2.f;
-    m_radius = 10.f;
+    m_radius = 20.f;
     compute();
 }
 
