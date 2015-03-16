@@ -13,10 +13,8 @@ set(CMAKE_PREFIX_PATH "thirdParty/SFML-2.2")
 find_package(SFML 2 REQUIRED system window graphics audio)
 include_directories(${SFML_INCLUDE_DIR})
 
-#Detect and add GLEW
+# Add GLEW
 include_directories(thirdParty/glew-1.12.0/include)
-#add_definitions(-DGLEW_STATIC=1)
-add_subdirectory(thirdParty/glew-1.12.0)
 
 # Add GLM
 include_directories(thirdParty/glm)
@@ -26,6 +24,6 @@ set(ALL_LIBRARIES GLEW ${OPENGL_LIBRARIES} ${SFML_LIBRARIES})
 include_directories(./project/include)
 add_subdirectory(project)
 
-#Copy some ressources like shaders, gui files,etc...
+# Copy ressources and shaders
 file(COPY ./project/src/shaders/ DESTINATION project/src/shaders)
 file(COPY ./project/resources/ DESTINATION project/resources)

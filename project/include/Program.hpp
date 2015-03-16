@@ -7,7 +7,7 @@ struct Program{
 
     Program();
     ~Program();
-    void loadProgram(GLuint vsID, GLuint fsID, GLuint gsID = NULL);
+    void loadProgram(GLuint vsID, GLuint fsID, GLuint gsID = 0);
     int checkLinkError();
     void createProgram();
     GLuint getProgramId();
