@@ -46,6 +46,8 @@ int DemoScene::initScene()
     cameraLocation = glGetUniformLocation(program.id, "Camera");
     mvpLocation = glGetUniformLocation(program.id, "MVP");
     timeLocation = glGetUniformLocation(program.id, "Time");
+    discretizationLocation = glGetUniformLocation(program.id, "Discretization");
+    glProgramUniform2i(program.id, discretizationLocation, planet.width, planet.height);
 
     planet.initTexture();
     planet.initBuffers();

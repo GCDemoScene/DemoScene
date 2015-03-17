@@ -51,6 +51,7 @@ private:
     GLuint cameraLocation;
     GLuint mvpLocation;
     GLuint timeLocation;
+    GLuint discretizationLocation;
 
     // Actors
     Planet planet;

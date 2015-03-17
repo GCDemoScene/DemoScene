@@ -5,7 +5,6 @@
 #include <vector>
 
 struct Planet{
-
     enum class Face{
         FRONT, BACK, LEFT, RIGHT, UP, DOWN
     };

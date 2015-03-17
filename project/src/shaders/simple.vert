@@ -10,6 +10,7 @@ precision highp int;
 
 uniform mat4 MVP;
 uniform int Time;
+uniform ivec2 Discretization;
 
 layout(location = POSITION) in vec3 Position;
 layout(location = NORMAL) in vec3 Normal;
@@ -52,10 +53,30 @@ float random(vec4 seed)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+bool isEdge()
+{
+	int nbVerticesX = Discretization[0] + 1;
+	int nbVerticesY = Discretization[1] + 1;
+	int verticesPerFace = nbVerticesX * nbVerticesY; //width and height of discretization represent quad and not vertices.
+	// int faceFamily = gl_VertexID/verticesPerFace;
+	
+	int relativePosition = gl_VertexID % verticesPerFace;
+	int x = relativePosition % nbVerticesX;
+	int y = relativePosition / nbVerticesX;
+
+	if((x > 0 && x < nbVerticesX - 1) && (y > 0 && y < nbVerticesY - 1))
+		return false;
+	return true;
+}
+
 void main()
 {
-    vec3 variation = Normal * ((cos(Time * 0.001) + 2) / 2);// * random(vec4(Position.xy, TexCoord));
-    vec3 pos = Position + variation;
+	vec3 variation = vec3(0);
+	if(!isEdge()) // Keep edges stuck
+	{
+	    variation = Normal * ((cos(Time * 0.005) + 1) / 100) * (cos(gl_VertexID *0.01));
+	}
+	vec3 pos = Position + variation;
 
     Out.TexCoord = TexCoord;
     Out.Normal = Normal;
