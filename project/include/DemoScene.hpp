@@ -30,7 +30,6 @@ private:
     void event(int &last_x, int &last_y, bool &hasClicked);
     void update();
     void render();
-    bool checkError(const char* title);
 
     const uint FPS;
     const uint WINDOW_WIDTH;
@@ -39,20 +38,29 @@ private:
     GLenum glewCode;
     sf::RenderWindow window;
 
-    Camera camera;
+    bool running;
+    
+    ////////////////
+    //  Render
+    ////////////////
     Program program;
-
-    State state;
-
-    void changeState(State state);
+    Camera camera;
 
     // Uniforms
     GLuint diffuseLocation;
     GLuint cameraLocation;
     GLuint mvpLocation;
+    GLuint timeLocation;
 
     // Actors
     Planet planet;
 
-    bool running;
+    ///////////
+    // States
+    ///////////
+    State state;
+    void changeState(State state);
+    
+    // Other
+    bool checkError(const char* title);
 };

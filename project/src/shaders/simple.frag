@@ -20,6 +20,6 @@ in block
 
 void main()
 {
-    vec3 diffuse = texture(Diffuse, In.TexCoord).rgb;
-    FragColor = vec4(diffuse, 1.0);
+    // vec3 diffuse = texture(Diffuse, In.TexCoord).rgb;
+    FragColor = vec4(In.Normal, 1.0);
 }

@@ -1,5 +1,6 @@
 #include "DemoScene.hpp"
 #include <iostream>
+#include <random>
 #include <chrono>
 #include "Planet.hpp"
 #include "Shader.hpp"
@@ -44,6 +45,7 @@ int DemoScene::initScene()
     glProgramUniform1i(program.id, diffuseLocation, 0);
     cameraLocation = glGetUniformLocation(program.id, "Camera");
     mvpLocation = glGetUniformLocation(program.id, "MVP");
+    timeLocation = glGetUniformLocation(program.id, "Time");
 
     planet.initTexture();
     planet.initBuffers();
@@ -59,6 +61,7 @@ void DemoScene::runScene()
     sf::Clock clock;
     sf::Time elapsedTime;
     sf::Time framerate = sf::milliseconds(FRAMERATE_MILLISECONDS);
+    sf::Clock t;
 
     // event variables
     int last_x, last_y;
@@ -69,6 +72,9 @@ void DemoScene::runScene()
     while (running)
     {
         clock.restart();
+
+        // Upload general uniform
+        glProgramUniform1i(program.id, timeLocation, t.getElapsedTime().asMilliseconds());
 
         /// Events ( Handle input )
         event(last_x, last_y, hasClicked);
@@ -215,6 +221,22 @@ void DemoScene::changeState(State state)
     this->state = state;
 }
 
+// Getters
+uint DemoScene::getFPS() const
+{
+    return FPS;
+}
+
+uint DemoScene::getWindowWidth() const
+{
+    return WINDOW_WIDTH;
+}
+
+uint DemoScene::getWindowHeight() const
+{
+    return WINDOW_HEIGHT;
+}
+
 bool DemoScene::checkError(const char* title)
 {
     int error;
@@ -245,20 +267,4 @@ bool DemoScene::checkError(const char* title)
         fprintf(stdout, "OpenGL Error(%s): %s\n", errorString.c_str(), title);
     }
     return error == GL_NO_ERROR;
-}
-
-// Getters
-uint DemoScene::getFPS() const
-{
-    return FPS;
-}
-
-uint DemoScene::getWindowWidth() const
-{
-    return WINDOW_WIDTH;
-}
-
-uint DemoScene::getWindowHeight() const
-{
-    return WINDOW_HEIGHT;
 }
