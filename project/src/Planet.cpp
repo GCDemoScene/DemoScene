@@ -34,9 +34,15 @@ void Planet::initTexture()
     glGenTextures(1, &texture);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_data.getSize().x,
-                     img_data.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data.getPixelsPtr()
-        );
+        glTexImage2D(GL_TEXTURE_2D,
+                    0,
+                    GL_RGBA,
+                    img_data.getSize().x,
+                    img_data.getSize().y,
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    img_data.getPixelsPtr());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -187,7 +193,7 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
 }
 
 Planet::Planet()
-    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earth.png")
+    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earthTex.png")
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 

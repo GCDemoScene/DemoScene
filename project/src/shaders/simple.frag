@@ -20,6 +20,14 @@ in block
 
 void main()
 {
-    // vec3 diffuse = texture(Diffuse, In.TexCoord).rgb;
-    FragColor = vec4(In.Normal, 1.0);
+	const float radius = 1.f;
+	float variation = .2f;
+	float maxHeight = radius + variation;
+	float minHeight = radius - variation / 2;
+
+	float height = length(In.Position);
+	height = clamp((height - minHeight) / (maxHeight - minHeight), 0.01f, .99f); // transform height between 0 - 1 to uv tex
+
+    vec3 diffuse = texture(Diffuse, vec2(0, -height)).rgb;
+    FragColor = vec4(diffuse, 1.0);
 }

@@ -74,7 +74,7 @@ void main()
 	vec3 variation = vec3(0);
 	if(!isEdge()) // Keep edges stuck
 	{
-	    variation = Normal * ((cos(Time * 0.005) + 1) / 100) * (cos(gl_VertexID *0.01));
+	    variation = Normal * ((cos(Time * 0.0007) + 1) / 100) * (cos((gl_VertexID + Time * 0.02) * 0.01)); // Where magics happens (variantions of edges)
 	}
 	vec3 pos = Position + variation;
 
