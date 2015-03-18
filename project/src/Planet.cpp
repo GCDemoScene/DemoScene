@@ -3,6 +3,23 @@
 #include <iostream>
 #include "simplexnoise.hpp"
 
+Planet::Planet()
+    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earthTex.png")
+{
+    assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
+
+    createFace(glm::vec3(-1.f, -1.f, 1.f), Face::FRONT); // front face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::BACK); // back face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::LEFT); // left face
+    createFace(glm::vec3(1.f, -1.f, -1.f), Face::RIGHT); // right face
+    createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP); // up face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN); // down face
+}
+
+Planet::~Planet()
+{
+}
+
 void Planet::bind()
 {
 
@@ -191,21 +208,3 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
         }
     }
 }
-
-Planet::Planet()
-    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earthTex.png")
-{
-    assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
-
-    createFace(glm::vec3(-1.f, -1.f, 1.f), Face::FRONT); // front face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::BACK); // back face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::LEFT); // left face
-    createFace(glm::vec3(1.f, -1.f, -1.f), Face::RIGHT); // right face
-    createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP); // up face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN); // down face
-}
-
-Planet::~Planet()
-{
-}
-

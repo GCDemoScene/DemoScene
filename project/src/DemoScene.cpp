@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <random>
+#include <stdexcept>
 
 #include <SFML/OpenGL.hpp>
 
@@ -16,44 +17,35 @@ DemoScene::DemoScene()
     : FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS),
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, sf::ContextSettings(32)),
     glewCode(glewInit()), state(State::PLANET)
-{}
+{
+    if(glewCode != GLEW_OK)
+    {
+        std::cerr << "Unable to initialize GLEW : " << glewGetErrorString(glewCode) << std::endl;
+        throw std::runtime_error("OpenGl can't be initialized correctly");
+    }
+
+    // Create all shaders programs needed for OpenGL
+    programActor.loadProgram("./project/src/shaders/actor.vert", "", "./project/src/shaders/actor.frag");
+
+    // Create usefull uniform for each program
+}
 
 DemoScene::~DemoScene()
 {}
 
-int DemoScene::initScene()
+void DemoScene::initScene()
 {
-    if(glewCode != GLEW_OK) {
-        std::cerr << "Unable to initialize GLEW : " << glewGetErrorString(glewCode) << std::endl;
-        throw std::runtime_error("OpenGl can't be initialized correctly");
-    }
-    else
-    {
-        std::cout << "great" << std::endl;
-    }
-
-    // create vertex & fragment shaders
-    GLuint vertShaderId = compileShaderFromFile(GL_VERTEX_SHADER, "./project/src/shaders/simple.vert");
-    GLuint fragShaderId = compileShaderFromFile(GL_FRAGMENT_SHADER, "./project/src/shaders/simple.frag");
-
-    // load programs
-    program.loadProgram(vertShaderId, fragShaderId);
-
     // create uniforms
-    diffuseLocation = glGetUniformLocation(program.id, "Diffuse");
-    glProgramUniform1i(program.id, diffuseLocation, 0);
-    cameraLocation = glGetUniformLocation(program.id, "Camera");
-    mvpLocation = glGetUniformLocation(program.id, "MVP");
-    timeLocation = glGetUniformLocation(program.id, "Time");
-    discretizationLocation = glGetUniformLocation(program.id, "Discretization");
-    glProgramUniform2i(program.id, discretizationLocation, planet.width, planet.height);
+    diffuseLocation = glGetUniformLocation(programActor.id, "Diffuse");
+    glProgramUniform1i(programActor.id, diffuseLocation, 0);
+    cameraLocation = glGetUniformLocation(programActor.id, "Camera");
+    mvpLocation = glGetUniformLocation(programActor.id, "MVP");
+    timeLocation = glGetUniformLocation(programActor.id, "Time");
+    discretizationLocation = glGetUniformLocation(programActor.id, "Discretization");
+    glProgramUniform2i(programActor.id, discretizationLocation, planet.width, planet.height);
 
     planet.initTexture();
     planet.initBuffers();
-
-    std::cout << "init scene" << std::endl;
-
-    return 0;
 }
 
 void DemoScene::runScene()
@@ -77,7 +69,7 @@ void DemoScene::runScene()
         clock.restart();
 
         // Upload general uniform
-        glProgramUniform1i(program.id, timeLocation, t.getElapsedTime().asMilliseconds());
+        glProgramUniform1i(programActor.id, timeLocation, t.getElapsedTime().asMilliseconds());
 
         /// Events ( Handle input )
         event(last_x, last_y, hasClicked);
@@ -193,7 +185,7 @@ void DemoScene::update()
             break;
 
         case State::BYEBYEBIRDS :
-//            std::cout << "State : ByeByeBirds" << std::endl;
+           // std::cout << "State : ByeByeBirds" << std::endl;
 //            changeState(State::PLANET);
             break;
 
@@ -214,11 +206,11 @@ void DemoScene::render()
     glm::mat4 mvp = projection * worldToView * objectToWorld;
 
     // Upload uniforms
-    glProgramUniformMatrix4fv(program.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
-    glProgramUniform3f(program.id, cameraLocation, camera.eye.x, camera.eye.y, camera.eye.z);
+    glProgramUniformMatrix4fv(programActor.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
+    glProgramUniform3f(programActor.id, cameraLocation, camera.eye.x, camera.eye.y, camera.eye.z);
 
     // Select shader
-    glUseProgram(program.id);
+    glUseProgram(programActor.id);
 
     // GL Viewport
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

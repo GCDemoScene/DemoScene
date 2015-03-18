@@ -1,4 +1,6 @@
 #pragma once
+
+#include <iostream>
 #include <GL/glew.h>
 
 struct Program{
@@ -7,8 +9,9 @@ struct Program{
     Program();
     ~Program();
     
-    void loadProgram(GLuint vsID, GLuint fsID, GLuint gsID = 0);
-    int checkLinkError();
-    
+    void loadProgram(const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
+
     GLuint getProgramId();
+    
+    void checkLinkError();
 };

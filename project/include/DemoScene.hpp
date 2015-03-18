@@ -1,4 +1,5 @@
 #pragma once
+
 #include <SFML/Graphics.hpp>
 #include <GL/glew.h>
 #include "Camera.hpp"
@@ -10,7 +11,7 @@ class DemoScene
 public:
     DemoScene();
     ~DemoScene();
-    int initScene();
+    void initScene();
     void runScene();
 
     uint getFPS() const;
@@ -48,7 +49,13 @@ private:
     //  Render
     ////////////////
     Camera camera;
-    Program program;
+
+    Program programActor;
+    Program programSkybox;
+    Program programDirectionalLight;
+    Program programPointLight;
+    Program programSpotLight;
+    Program programShadowMap;
 
     // Uniforms
     GLuint diffuseLocation;
