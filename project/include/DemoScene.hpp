@@ -35,16 +35,20 @@ private:
     const uint WINDOW_WIDTH;
     const uint WINDOW_HEIGHT;
     const uint FRAMERATE_MILLISECONDS;
-    GLenum glewCode;
+    
+    // First create SFML window
     sf::RenderWindow window;
+
+    // Only after we can create OpenGL context
+    GLenum glewCode;
 
     bool running = true;
     
     ////////////////
     //  Render
     ////////////////
-    Program program;
     Camera camera;
+    Program program;
 
     // Uniforms
     GLuint diffuseLocation;

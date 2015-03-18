@@ -12,29 +12,24 @@
 #include "Planet.hpp"
 #include "Shader.hpp"
 
-DemoScene::DemoScene():
-    FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), glewCode(glewInit()), state(State::PLANET)
-{
-    // Request a 32-bits depth buffer when creating the window
-    sf::ContextSettings contextSettings;
-    contextSettings.depthBits = 32;
-
-    window.create(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, contextSettings);
-    glewCode = glewInit();
-    program.createProgram();
-}
+DemoScene::DemoScene()
+    : FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS),
+    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, sf::ContextSettings(32)),
+    glewCode(glewInit()), state(State::PLANET)
+{}
 
 DemoScene::~DemoScene()
-{
-
-}
+{}
 
 int DemoScene::initScene()
 {
-    if(GLEW_OK != glewCode) {
+    if(glewCode != GLEW_OK) {
         std::cerr << "Unable to initialize GLEW : " << glewGetErrorString(glewCode) << std::endl;
-        //throw std::exception("OpenGl can't be initialized correctly");
-        return (EXIT_FAILURE);
+        throw std::runtime_error("OpenGl can't be initialized correctly");
+    }
+    else
+    {
+        std::cout << "great" << std::endl;
     }
 
     // create vertex & fragment shaders

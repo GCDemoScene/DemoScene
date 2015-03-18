@@ -1,33 +1,21 @@
 #include "Program.hpp"
+
 #include <iostream>
 
 Program::Program() :
-    id(0)
+    id(glCreateProgram())
 {
 }
 
 
 Program::~Program()
 {
-}
-
-void Program::createProgram()
-{
-    id = glCreateProgram();
-    std::cout <<  "id program ctor : " << id << std::endl;
+    glDeleteProgram(id);
 }
 
 GLuint Program::getProgramId()
 {
-    if(id != 0)
-    {
-        return id;
-    }
-    else
-    {
-        createProgram();
-        return id;
-    }
+    return id;
 }
 
 void Program::loadProgram(GLuint vsID, GLuint fsID, GLuint gsID)
