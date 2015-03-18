@@ -14,7 +14,7 @@
 #include "Shader.hpp"
 
 DemoScene::DemoScene()
-    : FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS),
+    : FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), running(true),
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, sf::ContextSettings(32)),
     glewCode(glewInit()), state(State::PLANET)
 {
@@ -28,25 +28,17 @@ DemoScene::DemoScene()
     programActor.loadProgram("./project/src/shaders/actor.vert", "", "./project/src/shaders/actor.frag");
 
     // Create usefull uniform for each program
+    timeLocation = glGetUniformLocation(programActor.id, "Time");
+    mvpLocation = glGetUniformLocation(programActor.id, "MVP");
+    cameraLocation = glGetUniformLocation(programActor.id, "Camera");
+    diffuseLocation = glGetUniformLocation(programActor.id, "Diffuse");
+    glProgramUniform1i(programActor.id, diffuseLocation, 0);
+    discretizationLocation = glGetUniformLocation(programActor.id, "Discretization");
+    glProgramUniform2i(programActor.id, discretizationLocation, planet.width, planet.height);
 }
 
 DemoScene::~DemoScene()
 {}
-
-void DemoScene::initScene()
-{
-    // create uniforms
-    diffuseLocation = glGetUniformLocation(programActor.id, "Diffuse");
-    glProgramUniform1i(programActor.id, diffuseLocation, 0);
-    cameraLocation = glGetUniformLocation(programActor.id, "Camera");
-    mvpLocation = glGetUniformLocation(programActor.id, "MVP");
-    timeLocation = glGetUniformLocation(programActor.id, "Time");
-    discretizationLocation = glGetUniformLocation(programActor.id, "Discretization");
-    glProgramUniform2i(programActor.id, discretizationLocation, planet.width, planet.height);
-
-    planet.initTexture();
-    planet.initBuffers();
-}
 
 void DemoScene::runScene()
 {

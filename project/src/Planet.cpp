@@ -8,40 +8,15 @@ Planet::Planet()
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 
+    // Create vertex object
     createFace(glm::vec3(-1.f, -1.f, 1.f), Face::FRONT); // front face
     createFace(glm::vec3(-1.f, -1.f, -1.f), Face::BACK); // back face
     createFace(glm::vec3(-1.f, -1.f, -1.f), Face::LEFT); // left face
     createFace(glm::vec3(1.f, -1.f, -1.f), Face::RIGHT); // right face
     createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP); // up face
     createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN); // down face
-}
 
-Planet::~Planet()
-{
-}
-
-void Planet::bind()
-{
-
-}
-
-void Planet::unbind()
-{
-
-}
-
-void Planet::render()
-{
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
-//        glDrawElements(GL_LINE_STRIP, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
-    glBindVertexArray(0);
-}
-
-void Planet::initTexture()
-{
+    // Load texture
     sf::Image img_data;
     if (!img_data.loadFromFile(pathTexture))
     {
@@ -65,10 +40,8 @@ void Planet::initTexture()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
 
-void Planet::initBuffers()
-{
+    // Load buffer on GPU
     glGenBuffers(4, vbo);
     glGenVertexArrays(1, &vao);
 
@@ -101,6 +74,22 @@ void Planet::initBuffers()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+Planet::~Planet()
+{
+    glDeleteTextures(1, &texture);
+    glDeleteBuffers(4, vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+void Planet::render(GLenum mode)
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(vao);
+        glDrawElements(mode, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
+    glBindVertexArray(0);
 }
 
 void Planet::computeHeight(glm::vec3 &vertex)

@@ -29,15 +29,11 @@ struct Planet{
     std::string pathTexture;
     GLuint texture;
 
-    void bind();
-    void unbind();
-    void render();
-    void initTexture();
-    void initBuffers();
+    void render(GLenum mode = GL_TRIANGLES);
+
+    void createFace(glm::vec3 startPos, Face f);
 
     void computeHeight(glm::vec3 &vertex);
     void mapCubeToSphere(glm::vec3 &position);
-
-    void createFace(glm::vec3 startPos, Face f);
 };
 

@@ -11,7 +11,7 @@ class DemoScene
 public:
     DemoScene();
     ~DemoScene();
-    void initScene();
+    
     void runScene();
 
     uint getFPS() const;
@@ -37,19 +37,28 @@ private:
     const uint WINDOW_HEIGHT;
     const uint FRAMERATE_MILLISECONDS;
     
+    bool running;
+    
     // First create SFML window
     sf::RenderWindow window;
 
     // Only after we can create OpenGL context
     GLenum glewCode;
 
-    bool running = true;
+    ///////////
+    // States
+    ///////////
+    State state;
+    void changeState(State state);
     
     ////////////////
     //  Render
     ////////////////
+    // Actors (Actors must be created before shaders programs. Program can be refered some Actors attributes)
+    Planet planet;
     Camera camera;
-
+    
+    // Programs shaders
     Program programActor;
     Program programSkybox;
     Program programDirectionalLight;
@@ -63,15 +72,6 @@ private:
     GLuint mvpLocation;
     GLuint timeLocation;
     GLuint discretizationLocation;
-
-    // Actors
-    Planet planet;
-
-    ///////////
-    // States
-    ///////////
-    State state;
-    void changeState(State state);
     
     // Other
     bool checkError(const char* title);
