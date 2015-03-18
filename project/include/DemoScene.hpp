@@ -38,7 +38,7 @@ private:
     GLenum glewCode;
     sf::RenderWindow window;
 
-    bool running;
+    bool running = true;
     
     ////////////////
     //  Render

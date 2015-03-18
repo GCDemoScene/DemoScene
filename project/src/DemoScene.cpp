@@ -1,12 +1,16 @@
 #include "DemoScene.hpp"
+
 #include <iostream>
+#include <sstream>
 #include <random>
-#include <chrono>
-#include "Planet.hpp"
-#include "Shader.hpp"
+
+#include <SFML/OpenGL.hpp>
+
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include <SFML/OpenGL.hpp>
+
+#include "Planet.hpp"
+#include "Shader.hpp"
 
 DemoScene::DemoScene():
     FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), glewCode(glewInit()), state(State::PLANET)
@@ -59,17 +63,19 @@ int DemoScene::initScene()
 
 void DemoScene::runScene()
 {
-    // Boucle de jeu avec fixed time step
-    sf::Clock clock;
-    sf::Time elapsedTime;
-    sf::Time framerate = sf::milliseconds(FRAMERATE_MILLISECONDS);
-    sf::Clock t;
-
     // event variables
     int last_x, last_y;
     bool hasClicked = false;
 
-    running = true;
+    // Boucle de jeu avec fixed time step
+    sf::Time elapsedTime;
+    sf::Time framerate = sf::milliseconds(FRAMERATE_MILLISECONDS);
+    sf::Time oneSecond = sf::milliseconds(1000.f);
+    int fps = 0;
+
+    sf::Clock t;
+    sf::Clock clock;
+    sf::Clock elapsedASecond;
 
     while (running)
     {
@@ -93,6 +99,16 @@ void DemoScene::runScene()
         if(elapsedTime < framerate)
         {
             sf::sleep(framerate - elapsedTime);
+        }
+
+        ++fps;
+        if(elapsedASecond.getElapsedTime() >= oneSecond)
+        {
+            std::ostringstream oss;
+            oss << "DemoScene : Birds around the world !" << " (FPS : " << fps << ")";
+            window.setTitle(oss.str().c_str());
+            fps = 0;
+            elapsedASecond.restart();
         }
     }
     window.close();
