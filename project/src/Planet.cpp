@@ -4,7 +4,7 @@
 #include "simplexnoise.hpp"
 
 Planet::Planet()
-    : width(50), height(50), radius(1.f), pathTexture("./project/resources/textures/earthTex.png")
+    : width(50), height(50), radius(1.f)
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 
@@ -16,16 +16,16 @@ Planet::Planet()
     createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP); // up face
     createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN); // down face
 
-    // Load texture
+    //////////////////
+    // Load textures
+    //////////////////
     sf::Image img_data;
+    pathTexture = "./project/resources/textures/earthTexDiffuse.png";
     if (!img_data.loadFromFile(pathTexture))
-    {
         throw std::runtime_error("Could not load : "+ pathTexture);
-    }
 
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenTextures(1, &diffuseTexture);
+    glBindTexture(GL_TEXTURE_2D, diffuseTexture);
         glTexImage2D(GL_TEXTURE_2D,
                     0,
                     GL_RGBA,
@@ -41,7 +41,30 @@ Planet::Planet()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    pathTexture = "./project/resources/textures/earthTexSpecular.png";
+    if (!img_data.loadFromFile(pathTexture))
+        throw std::runtime_error("Could not load : "+ pathTexture);
+
+    glGenTextures(1, &specularTexture);
+    glBindTexture(GL_TEXTURE_2D, specularTexture);
+        glTexImage2D(GL_TEXTURE_2D,
+                    0,
+                    GL_RGBA,
+                    img_data.getSize().x,
+                    img_data.getSize().y,
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    img_data.getPixelsPtr());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    ////////////////////////
     // Load buffer on GPU
+    ////////////////////////
     glGenBuffers(4, vbo);
     glGenVertexArrays(1, &vao);
 
@@ -78,7 +101,8 @@ Planet::Planet()
 
 Planet::~Planet()
 {
-    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &diffuseTexture);
+    glDeleteTextures(1, &specularTexture);
     glDeleteBuffers(4, vbo);
     glDeleteVertexArrays(1, &vao);
 }
@@ -86,7 +110,9 @@ Planet::~Planet()
 void Planet::render(GLenum mode)
 {
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, diffuseTexture);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, specularTexture);
     glBindVertexArray(vao);
         glDrawElements(mode, triangleList.size(), GL_UNSIGNED_INT, (void*)0);
     glBindVertexArray(0);

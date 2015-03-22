@@ -9,7 +9,10 @@
 
 Program::Program() :
     id(glCreateProgram())
-{}
+{
+    if(!id)
+        throw std::runtime_error("Program : glCreateProgram fail and return 0 !");
+}
 
 
 Program::~Program()
@@ -42,6 +45,10 @@ void Program::loadProgram(const std::string& vertPath, const std::string& geomPa
 
     glLinkProgram(id);
     checkLinkError();
+
+    // TODO
+    // Warning normally we need to detah shader after attach and after quit the program !!!
+    // See RAII idiom to do this.
 }
 
 void Program::checkLinkError()

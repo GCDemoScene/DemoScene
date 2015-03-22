@@ -1,8 +1,10 @@
 #pragma once
-#include <GL/glew.h>
+
 #include <string>
-#include <glm/glm.hpp>
 #include <vector>
+
+#include <GL/glew.h>
+#include <glm/glm.hpp>
 
 struct Planet{
     enum class Face{
@@ -27,7 +29,8 @@ struct Planet{
 
     // Texture
     std::string pathTexture;
-    GLuint texture;
+    GLuint diffuseTexture;
+    GLuint specularTexture;
 
     void render(GLenum mode = GL_TRIANGLES);
 
@@ -36,4 +39,3 @@ struct Planet{
     void computeHeight(glm::vec3 &vertex);
     void mapCubeToSphere(glm::vec3 &position);
 };
-

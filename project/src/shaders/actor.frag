@@ -1,15 +1,17 @@
-#version 410 core
+#version 430 core
 
-#define POSITION    0
-#define NORMAL      1
-#define TEXCOORD    2
 #define FRAG_COLOR  0
 
 precision highp int;
 
 uniform sampler2D Diffuse;
+uniform sampler2D Specular;
+uniform float SpecularPower;
 
-layout(location = FRAG_COLOR, index = 0) out vec4 FragColor;
+// Write in GL_COLOR_ATTACHMENT0
+layout(location = 0) out vec4 Color;
+// Write in GL_COLOR_ATTACHMENT1
+layout(location = 1) out vec4 Normal;
 
 in block
 {
@@ -17,6 +19,10 @@ in block
     vec3 Normal;
     vec3 Position;
 } In;
+
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 void main()
 {
@@ -28,6 +34,11 @@ void main()
 	float height = length(In.Position);
 	height = clamp((height - minHeight) / (maxHeight - minHeight), 0.01f, .99f); // transform height between 0 - 1 to uv tex
 
-    vec3 diffuse = texture(Diffuse, vec2(0, -height)).rgb;
-    FragColor = vec4(diffuse, 1.0);
+    vec3 diffuse = texture(Diffuse, vec2(rand(In.TexCoord), -height)).rgb;
+    vec3 specular = texture(Specular, vec2(rand(In.TexCoord), -height)).rgb;
+
+    Normal.rgb = In.Normal;
+	Normal.a = SpecularPower;
+	Color.rgb = diffuse;
+	Color.a = specular.r;
 }

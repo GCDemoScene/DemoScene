@@ -11,7 +11,6 @@ GLuint compileShader(GLenum shaderType, const char * sourceBuffer, int bufferSiz
     glShaderSource(shaderObject, 1, sc, NULL);
     glCompileShader(shaderObject);
     checkCompileError(shaderObject, sc);
-    std::cout << "compile shader" << std::endl;
     return shaderObject;
 }
 
