@@ -46,11 +46,22 @@ bool isEdge()
 void main()
 {
 	vec3 variation = vec3(0);
+	vec3 normal = Normal;
 	if(!isEdge()) // Keep edges stuck
 	{
 	    variation = Normal * ((cos(Time * 0.0007) + 1) / 100) * (cos((gl_VertexID + Time * 0.02) * 0.01)); // Where magics happens (variantions of edges)
 	}
-	vec3 pos = Position + variation;
+	vec3 pos = Position;
+
+	pos.x = Position.x * cos(Time* 0.00007) - Position.z * sin(Time* 0.00007);
+	pos.y = Position.y;
+	pos.z = Position.x * sin(Time* 0.00007) + Position.z * cos(Time* 0.00007);
+
+	pos += variation;
+
+	normal.x = Normal.x * cos(Time* 0.00007) - Normal.z * sin(Time* 0.00007);
+	normal.y = Normal.y;
+	normal.z = Normal.x * sin(Time* 0.00007) + Normal.z * cos(Time* 0.00007);
 
     Out.TexCoord = TexCoord;
     Out.Normal = Normal;
