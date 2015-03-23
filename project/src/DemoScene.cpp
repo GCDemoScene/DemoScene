@@ -638,10 +638,11 @@ void DemoScene::render(float deltaTime)
     // Clear the front buffer
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // don't use color buffer
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glUseProgram(programActor.id);
         planet.render();
-
-    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     //////////////////////////
     // Render FBO -> screen //
