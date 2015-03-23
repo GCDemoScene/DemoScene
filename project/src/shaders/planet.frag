@@ -28,16 +28,15 @@ float rand(vec2 co){
 
 void main()
 {
-	const float radius = Radius;
-	float variation = radius / 5.f;
-	float maxHeight = radius + variation;
-	float minHeight = radius - variation / 2;
+	float variation = Radius * 0.2f;
+	float maxHeight = Radius + variation;
+	float minHeight = Radius - variation * .5f;
 
 	float height = length(In.Position - PlanetPosition);
 	height = clamp((height - minHeight) / (maxHeight - minHeight), 0.01f, .99f); // transform height between 0 - 1 to uv tex
 
-    vec3 diffuse = texture(Diffuse, vec2(rand(In.TexCoord), -height)).rgb;
-    vec3 specular = texture(Specular, vec2(rand(In.TexCoord), -height)).rgb;
+    vec3 diffuse = texture(Diffuse, vec2(height, -height)).rgb;
+    vec3 specular = texture(Specular, vec2(height, -height)).rgb;
 
     Normal.rgb = In.Normal;
 	Normal.a = SpecularPower;
