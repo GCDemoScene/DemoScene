@@ -9,6 +9,7 @@ layout(location = NORMAL) in vec3 Normal;
 layout(location = TEXCOORD) in vec2 TexCoord;
 
 uniform mat4 MVP;
+uniform int Time;
 
 out block
 {

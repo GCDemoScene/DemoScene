@@ -9,6 +9,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/ext.hpp"
 
 #include "Shader.hpp"
 #include "lights/PointLight.hpp"
@@ -220,6 +221,7 @@ DemoScene::DemoScene()
     // Skybox
         skyboxCubeMapLocation = glGetUniformLocation(programSkybox.id, "CubeMap");
         skyboxMVPLocation = glGetUniformLocation(programSkybox.id, "MVP");
+        skyboxTimeLocation = glGetUniformLocation(programSkybox.id, "Time");
         
         glProgramUniform1i(programSkybox.id, skyboxCubeMapLocation, 0);
 }
@@ -259,8 +261,11 @@ void DemoScene::runScene()
     {
         clock.restart();
 
+        auto time = t.getElapsedTime().asMilliseconds();
+
         // Upload general uniform
-        glProgramUniform1i(programPlanet.id, timeLocation, t.getElapsedTime().asMilliseconds());
+        glProgramUniform1i(programPlanet.id, timeLocation, time);
+        glProgramUniform1i(programSkybox.id, skyboxTimeLocation, time);
 
         /// Events ( Handle input )
         event(last_x, last_y, hasClicked);

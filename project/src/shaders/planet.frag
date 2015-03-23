@@ -20,6 +20,7 @@ in block
     vec2 TexCoord;
     vec3 Normal;
     vec3 Position;
+    vec3 PlanetPosition;
 } In;
 
 float rand(vec2 co){
@@ -32,7 +33,7 @@ void main()
 	float maxHeight = Radius + variation;
 	float minHeight = Radius - variation * .5f;
 
-	float height = length(In.Position - PlanetPosition);
+	float height = length(In.Position - In.PlanetPosition);
 	height = clamp((height - minHeight) / (maxHeight - minHeight), 0.01f, .99f); // transform height between 0 - 1 to uv tex
 
     vec3 diffuse = texture(Diffuse, vec2(height, -height)).rgb;

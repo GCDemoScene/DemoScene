@@ -167,6 +167,7 @@ private:
 
     GLuint skyboxCubeMapLocation;
     GLuint skyboxMVPLocation;
+    GLuint skyboxTimeLocation;
     
     // ---------------
     // Other

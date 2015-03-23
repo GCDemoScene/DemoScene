@@ -10,6 +10,7 @@ precision highp int;
 uniform mat4 MVP;
 uniform int Time;
 uniform ivec2 Discretization;
+uniform vec3 PlanetPosition;
 
 layout(location = POSITION) in vec3 Position;
 layout(location = NORMAL) in vec3 Normal;
@@ -25,6 +26,7 @@ out block
     vec2 TexCoord; 
     vec3 Normal;
     vec3 Position;
+    vec3 PlanetPosition;
 } Out;
 
 bool isEdge()
@@ -52,16 +54,21 @@ void main()
 	    variation = Normal * ((cos(Time * 0.0007) + 1) / 100) * (cos((gl_VertexID + Time * 0.02) * 0.01)); // Where magics happens (variantions of edges)
 	}
 	vec3 pos = Position;
+	float coeff = (abs(PlanetPosition.x) * 0.0001) + 0.00007 ;
 
-	pos.x = Position.x * cos(Time* 0.00007) - Position.z * sin(Time* 0.00007);
+	pos.x = Position.x * cos(Time* coeff) - Position.z * sin(Time*coeff);
 	pos.y = Position.y;
-	pos.z = Position.x * sin(Time* 0.00007) + Position.z * cos(Time* 0.00007);
+	pos.z = Position.x * sin(Time* coeff) + Position.z * cos(Time*coeff);
 
 	pos += variation;
 
-	normal.x = Normal.x * cos(Time* 0.00007) - Normal.z * sin(Time* 0.00007);
+	Out.PlanetPosition.x = PlanetPosition.x * cos(Time* coeff) - PlanetPosition.z * sin(Time*coeff);
+	Out.PlanetPosition.y = PlanetPosition.y;
+	Out.PlanetPosition.z = PlanetPosition.x * sin(Time* coeff) + PlanetPosition.z * cos(Time* coeff);
+
+	normal.x = Normal.x * cos(Time* coeff) - Normal.z * sin(Time* coeff);
 	normal.y = Normal.y;
-	normal.z = Normal.x * sin(Time* 0.00007) + Normal.z * cos(Time* 0.00007);
+	normal.z = Normal.x * sin(Time* coeff) + Normal.z * cos(Time* coeff);
 
     Out.TexCoord = TexCoord;
     Out.Normal = Normal;
