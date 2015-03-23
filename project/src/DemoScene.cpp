@@ -22,7 +22,7 @@ DemoScene::DemoScene()
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, sf::ContextSettings(32)),
     glewCode(glewInit()), state(State::PLANET),
     planet("./project/resources/textures/earthTexDiffuse.png", "./project/resources/textures/earthTexSpecular.png"),
-    satellite("./project/resources/textures/earthTexDiffuse.png", "./project/resources/textures/earthTexSpecular.png", glm::vec3(-4.f, 0.f, 0.f), .5f),
+    satellite("./project/resources/textures/lavaTexDiffuse.png", "./project/resources/textures/lavaTexSpecular.png", glm::vec3(-4.f, 0.f, 0.f), .5f),
     programPlanet(Program("./project/src/shaders/planet.vert", "", "./project/src/shaders/planet.frag")),
     programPointLight(Program("./project/src/shaders/pointLight.vert", "", "./project/src/shaders/pointLight.frag")),
     programDirectionalLight(Program("./project/src/shaders/directionalLight.vert", "", "./project/src/shaders/directionalLight.frag")),
@@ -153,7 +153,6 @@ DemoScene::DemoScene()
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             throw std::runtime_error("OpenGl : Error on building shadow framebuffer");
-    
     // Back to the default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
