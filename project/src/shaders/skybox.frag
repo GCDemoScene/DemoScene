@@ -13,5 +13,5 @@ in block
 
 void main()
 {
-    Color = vec4(texture(CubeMap, In.position));
+    Color = texture(CubeMap, In.position);
 }

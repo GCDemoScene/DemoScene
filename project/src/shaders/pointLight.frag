@@ -91,7 +91,8 @@ vec3 illuminationPointLight(vec3 objectPosition, vec3 normal, vec3 diffuseColor,
 
     // attenuation
     float distance = distance(PointLights.Lights[Id].position, objectPosition);
-    float attenuation = 1.0 / (pow(distance,2)*.1 + 1.0);
+    float attenuation = 1.0 / (pow(distance,2) * 2.f + 1.f);
+    // float attenuation = 1.0 / (distance * distance + 1.f);
 
     // ShadowMapping
     float bias = .2f; // bias

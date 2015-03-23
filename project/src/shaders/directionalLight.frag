@@ -1,6 +1,11 @@
 #version 430 core
 #extension GL_ARB_shader_storage_buffer_object : require
 
+const float PI = 3.14159265359;
+const float TWOPI = 6.28318530718;
+const float PI_2 = 1.57079632679;
+const float DEG2RAD = TWOPI / 360.0;
+
 in block
 {
     vec2 Texcoord;
@@ -18,6 +23,8 @@ uniform int Id;
 
 uniform vec3 CameraPosition;
 
+layout(location = 0, index = 0) out vec4 Color;
+
 struct DirectionalLight
 {
     vec3 position;
@@ -31,8 +38,6 @@ layout(std430, binding = 1) buffer directionallights
     int count;
     DirectionalLight Lights[];
 } DirectionalLights;
-
-layout(location = 0) out vec4 Color;
 
 vec2 poissonDisk[16] = vec2[](
     vec2( -0.94201624, -0.39906216 ),
@@ -69,6 +74,7 @@ vec3 illuminationDirectionalLight(vec3 positionObject, vec3 diffuseColor, vec3 s
     // directional
     vec3 l = normalize(DirectionalLights.Lights[Id].position);
     float ndotl = clamp(dot(normal, l), 0.0, 1.0);
+
     // SpecularPower
     vec3 v = normalize(CameraPosition - positionObject);
     vec3 h = normalize(l+v);
@@ -76,7 +82,7 @@ vec3 illuminationDirectionalLight(vec3 positionObject, vec3 diffuseColor, vec3 s
     vec3 specular = specularColor * pow(ndoth, specularPower);
     vec3 color = (diffuseColor * ndotl * DirectionalLights.Lights[Id].color * DirectionalLights.Lights[Id].intensity) + (specular * DirectionalLights.Lights[Id].intensity);
 
-    float shadowDepth = textureProj(ShadowMap, vec4(lP.xy, lP.z -0.005, 1.0), 0.0);
+    // float shadowDepth = textureProj(ShadowMap, vec4(lP.xy, lP.z -0.005, 1.0), 0.0);
     // if (any(greaterThan(color, vec3(0.001))))
     // {
     //     // Echantillonnage de Poisson
@@ -94,7 +100,7 @@ vec3 illuminationDirectionalLight(vec3 positionObject, vec3 diffuseColor, vec3 s
     //     color *= shadowDepth;
     // }
 
-    return vec3(shadowDepth);
+    return vec3(color);
 }
 
 

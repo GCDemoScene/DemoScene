@@ -131,21 +131,19 @@ DemoScene::DemoScene()
     // -------------------
     glGenFramebuffers(1, &shadowFbo);
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+        // Create a render buffer since we don't need to read shadow color
+        // in a texture
+        glGenRenderbuffers(1, &shadowRenderBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, shadowRenderBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, shadowMapSize, shadowMapSize);
+        // Attach the renderbuffer
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, shadowRenderBuffer);
+        // Attach the first shadow texture to the depth attachment
+        // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, shadowCubeMapTextures[0], 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw std::runtime_error("OpenGl : Error on building shadow framebuffer");
     
-    // Create a render buffer since we don't need to read shadow color
-    // in a texture
-    glGenRenderbuffers(1, &shadowRenderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, shadowRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, shadowMapSize, shadowMapSize);
-    // Attach the renderbuffer
-    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, shadowRenderBuffer);
-    // Attach the first shadow texture to the depth attachment
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, shadowCubeMapTextures[0], 0);
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("OpenGl : Error on building shadow framebuffer");
-
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
     // Back to the default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -443,10 +441,8 @@ void DemoScene::render(float deltaTime)
     ((int*) lightBuffer)[0] = nbBirds;
     for (int i = 0; i < nbBirds; ++i)
     {
-        // glm::vec3 pos(cos(deltaTime * 0.001 + 6), 2.5f, sin(deltaTime * 0.001 + 6));
-        glm::vec3 pos(2.f, 2.f, 0.f);
-        glm::vec3 color(1, 1, 1);
-        // glm::vec3 color(fabsf(cos(i*2.f)), 1.-fabsf(sinf(i)) , 0.5f + 0.5f-fabsf(cosf(i)));
+        glm::vec3 pos(cos(deltaTime * 0.0002 + 0.5f * i), 0.75f, sin(deltaTime * 0.0002 + 0.5f * i));
+        glm::vec3 color(fabsf(cos(i*2.f)), 1.-fabsf(sinf(i)) , 0.5f + 0.5f-fabsf(cosf(i)));
         // Light space matrices
         // From light space to shadow map screen space
         glm::mat4 projectionLight = glm::perspective(glm::radians(90.f), 1.f, 1.f, 100.f);
@@ -526,7 +522,7 @@ void DemoScene::render(float deltaTime)
     ((int*) lightBuffer)[0] = nbSun;
     for (int i = 0; i < nbSun; ++i)
     {
-        glm::vec3 pos(3, 3, 0);
+        glm::vec3 pos(cos(deltaTime * 0.0001 + 6), 0.f, sin(deltaTime * 0.0001 + 6));
         // Light space matrices
         // From light space to shadow map screen space
         // glm::mat4 projectionLight = glm::perspective(glm::radians(45*2.f), 1.f, 1.f, 100.f);
@@ -546,7 +542,7 @@ void DemoScene::render(float deltaTime)
         DirectionalLight p =
         {
             pos, 0,
-            glm::vec3(0.4, 0.2, 0.9),
+            glm::vec3(0.92f, 0.82f, 0.77f),
             .5,
             worldToLightScreen
         };
@@ -568,7 +564,9 @@ void DemoScene::render(float deltaTime)
     ((int*) lightBuffer)[0] = nbRobots;
     for (int i = 0; i < nbRobots; ++i)
     {
-        glm::vec3 pos(cos(deltaTime * 0.001 + 2 * i), 3, sin(deltaTime * 0.001 + 2 * i));
+        glm::vec3 pos(cos(deltaTime * 0.0002 + .5f * i), .5f, sin(deltaTime * 0.0002 + .5f * i));
+        // glm::vec3 pos(0.f, 0.5f, 0.5f);
+        glm::vec3 color(fabsf(cos(i*2.f)), 1.-fabsf(sinf(i)) , 0.5f + 0.5f-fabsf(cosf(i)));
         // direction Light to Object
         glm::vec3 dir(glm::normalize(glm::vec3(0, 0, 0) - pos));
         // Light space matrices
@@ -591,7 +589,7 @@ void DemoScene::render(float deltaTime)
         45,
         glm::vec3(0, -1, 0),
         .5,
-        glm::vec3(.7, .3, .4),
+        color,
         1.,
         worldToLightScreen
         };
@@ -614,46 +612,52 @@ void DemoScene::render(float deltaTime)
     // Revert to window size viewport
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    ///////////////////////////
-    // Render Skybox Forward //
-    ///////////////////////////
-    // glUseProgram(programSkybox.id);
-    //     skybox.render();
-
     /////////////////////////////////////
     // Render Object - AOGL in gBuffer //
     /////////////////////////////////////
     // Actors
-    glEnable(GL_DEPTH_TEST);
-
     // Bind gbuffer
     glBindFramebuffer(GL_FRAMEBUFFER, gbufferFbo);
+
+    glEnable(GL_DEPTH_TEST);
     // Clear the front buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(programActor.id);
         planet.render();
 
-    /////////////////////////
-    // Render FBO - screen //
-    /////////////////////////
+    /////////////////////////////////////////////////
+    /// Need the GL_DEPTH_TEST to draw the skybox ///
+    /// Maybe it's too long to make another pass  ///
+    /// And it will be better to use stencil or   ///
+    /// another technics that we don't know !     ///
+    /////////////////////////////////////////////////
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glEnable(GL_DEPTH_TEST);
+    // Clear the front buffer
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(programActor.id);
+        planet.render();
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    //////////////////////////
+    // Render FBO -> screen //
+    //////////////////////////
     // default frame buffer (screen)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Clear screen
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glDisable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
+    // glDepthFunc(GL_NEVER);
 
     glEnable(GL_BLEND);
     // Setup additive blending
     glBlendFunc(GL_ONE, GL_ONE);
 
-    // Main Viewport
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    glBindVertexArray(quadVao);
-
+    // Textures
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     glActiveTexture(GL_TEXTURE0 + 1);
@@ -672,6 +676,9 @@ void DemoScene::render(float deltaTime)
         glActiveTexture(GL_TEXTURE0 + 3 + shadowCubeMapCount + i);
         glBindTexture(GL_TEXTURE_2D, shadowMapTextures[i]);
     }
+
+    // Vao screen
+    glBindVertexArray(quadVao);
 
     // PointLight render
     glUseProgram(programPointLight.id);
@@ -697,6 +704,16 @@ void DemoScene::render(float deltaTime)
         glProgramUniform1i(programSpotLight.id, sl_IdLocation, i);
         glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
     }
+
+    glDisable(GL_BLEND);
+
+    ///////////////////////////
+    // Render Skybox Forward //
+    ///////////////////////////
+    glEnable(GL_DEPTH_TEST);
+
+    glUseProgram(programSkybox.id);
+        skybox.render();
 
     window.display();
 }

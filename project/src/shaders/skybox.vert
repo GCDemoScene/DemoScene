@@ -25,5 +25,5 @@ void main()
 	Out.normal = Normal;
 	Out.texCoord = TexCoord;
 
-	gl_Position = MVP * vec4(pos, 1.0);
+	gl_Position = MVP * vec4(pos, 1.f);
 }

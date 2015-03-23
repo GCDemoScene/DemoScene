@@ -64,11 +64,11 @@ private:
     Camera camera;
     Skybox skybox;
     Planet planet;
-    static const int nbSun = 0;
+    static const int nbSun = 1;
     DirectionalLight sun[nbSun];
-    static const int nbBirds = 1;
+    static const int nbBirds = 5;
     PointLight birds[nbBirds];
-    static const int nbRobots = 0;
+    static const int nbRobots = 2;
     SpotLight robots[nbRobots];
 
     //////////////////

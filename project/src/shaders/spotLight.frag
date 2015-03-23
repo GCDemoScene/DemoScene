@@ -19,11 +19,11 @@ uniform mat4 InverseProj;
 
 uniform sampler2DShadow ShadowMap;
 
-layout(location = 0, index = 0) out vec4 Color;
-
 uniform int Id;
 
 uniform vec3 CameraPosition;
+
+layout(location = 0, index = 0) out vec4 Color;
 
 struct SpotLight
 {
@@ -109,7 +109,7 @@ vec3 illuminationSpotLight(vec3 positionObject, vec3 diffuseColor, vec3 specular
         for (int i=0;i<SampleCount;i++)
         {
             int index = int(samplesf*random(vec4(gl_FragCoord.xyy, i)))%SampleCount;
-            shadowDepth += textureProj(ShadowMap, vec4(lP.xy + poissonDisk[index]/(Spread * 1.f/distance), lP.z -0.005, 1.0), 0.0) / samplesf;
+            shadowDepth += textureProj(ShadowMap, vec4(lP.xy + poissonDisk[index]/(Spread * 1.f/distance), lP.z -0.05, 1.0), 0.0) / samplesf;
         }
 
         color *= shadowDepth;
