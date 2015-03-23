@@ -633,15 +633,23 @@ void DemoScene::render(float deltaTime)
     /// another technics that we don't know !     ///
     /////////////////////////////////////////////////
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    glEnable(GL_STENCIL_TEST);
     glEnable(GL_DEPTH_TEST);
-    // Clear the front buffer
     glClear(GL_DEPTH_BUFFER_BIT);
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    glStencilFunc(GL_NEVER, 1, 0xFF); // Set any stencil to 1
+    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+    glStencilMask(0xFF); // Write to stencil buffer
+    glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
 
     glUseProgram(programActor.id);
         planet.render();
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    glDisable(GL_STENCIL_TEST);
 
     //////////////////////////
     // Render FBO -> screen //
@@ -710,7 +718,13 @@ void DemoScene::render(float deltaTime)
     ///////////////////////////
     // Render Skybox Forward //
     ///////////////////////////
+
+    glEnable(GL_STENCIL_TEST);
     glEnable(GL_DEPTH_TEST);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00); // Don't write anything to stencil buffer
+//    glDepthMask(GL_TRUE); // Write to depth buffer
 
     glUseProgram(programSkybox.id);
         skybox.render();
