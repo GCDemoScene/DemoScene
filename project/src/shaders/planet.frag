@@ -7,6 +7,8 @@ precision highp int;
 uniform sampler2D Diffuse;
 uniform sampler2D Specular;
 uniform float SpecularPower;
+uniform float Radius;
+uniform vec3 PlanetPosition;
 
 // Write in GL_COLOR_ATTACHMENT0
 layout(location = 0) out vec4 Color;
@@ -26,12 +28,12 @@ float rand(vec2 co){
 
 void main()
 {
-	const float radius = 1.f;
-	float variation = .2f;
+	const float radius = Radius;
+	float variation = radius / 5.f;
 	float maxHeight = radius + variation;
 	float minHeight = radius - variation / 2;
 
-	float height = length(In.Position);
+	float height = length(In.Position - PlanetPosition);
 	height = clamp((height - minHeight) / (maxHeight - minHeight), 0.01f, .99f); // transform height between 0 - 1 to uv tex
 
     vec3 diffuse = texture(Diffuse, vec2(rand(In.TexCoord), -height)).rgb;

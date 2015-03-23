@@ -6,10 +6,8 @@
 struct Program{
     GLuint id;
 
-    Program();
+    Program(const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
     ~Program();
-    
-    void loadProgram(const std::string& vertPath, const std::string& geomPath, const std::string& fragPath);
 
     GLuint getProgramId();
     

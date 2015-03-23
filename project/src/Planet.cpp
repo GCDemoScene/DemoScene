@@ -3,24 +3,24 @@
 #include <iostream>
 #include "simplexnoise.hpp"
 
-Planet::Planet()
-    : width(50), height(50), radius(1.f)
+Planet::Planet(std::string diffusePath, std::string specularPath, glm::vec3 pos, float radius)
+    : width(50), height(50), radius(radius), position(pos)
 {
     assert(width > 0 && height > 0 && "Planet::Planet() : width and height must be > 0");
 
     // Create vertex object
-    createFace(glm::vec3(-1.f, -1.f, 1.f), Face::FRONT); // front face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::BACK); // back face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::LEFT); // left face
-    createFace(glm::vec3(1.f, -1.f, -1.f), Face::RIGHT); // right face
-    createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP); // up face
-    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN); // down face
+    createFace(glm::vec3(-1.f, -1.f, 1.f), Face::FRONT, position); // front face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::BACK, position); // back face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::LEFT, position); // left face
+    createFace(glm::vec3(1.f, -1.f, -1.f), Face::RIGHT, position); // right face
+    createFace(glm::vec3(-1.f, 1.f, -1.f), Face::UP, position); // up face
+    createFace(glm::vec3(-1.f, -1.f, -1.f), Face::DOWN, position); // down face
 
     //////////////////
     // Load textures
     //////////////////
     sf::Image img_data;
-    pathTexture = "./project/resources/textures/earthTexDiffuse.png";
+    pathTexture = diffusePath;
     if (!img_data.loadFromFile(pathTexture))
         throw std::runtime_error("Could not load : "+ pathTexture);
 
@@ -41,7 +41,7 @@ Planet::Planet()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    pathTexture = "./project/resources/textures/earthTexSpecular.png";
+    pathTexture = specularPath;
     if (!img_data.loadFromFile(pathTexture))
         throw std::runtime_error("Could not load : "+ pathTexture);
 
@@ -151,12 +151,12 @@ void Planet::mapCubeToSphere(glm::vec3& position)
     float y2 = position.y * position.y;
     float z2 = position.z * position.z;
 
-    position.x = position.x * sqrt( 1.0f - ( y2 * 0.5f ) - ( z2 * 0.5f ) + ( (y2 * z2) / 3.0f ) );
-    position.y = position.y * sqrt( 1.0f - ( z2 * 0.5f ) - ( x2 * 0.5f ) + ( (z2 * x2) / 3.0f ) );
-    position.z = position.z * sqrt( 1.0f - ( x2 * 0.5f ) - ( y2 * 0.5f ) + ( (x2 * y2) / 3.0f ) );
+    position.x = position.x * sqrt(1.0f - (y2 * 0.5f) - (z2 * 0.5f) + ((y2 * z2) / 3.0f));
+    position.y = position.y * sqrt(1.0f - (z2 * 0.5f) - (x2 * 0.5f) + ((z2 * x2) / 3.0f));
+    position.z = position.z * sqrt(1.0f - (x2 * 0.5f) - (y2 * 0.5f) + ((x2 * y2) / 3.0f));
 }
 
-void Planet::createFace(glm::vec3 startPos, Planet::Face f)
+void Planet::createFace(glm::vec3 startPos, Planet::Face f, glm::vec3 translate)
 {
     glm::vec3 pos, normal;
 
@@ -186,6 +186,7 @@ void Planet::createFace(glm::vec3 startPos, Planet::Face f)
             normal = glm::normalize(pos - glm::vec3(0));
 
             pos *= radius;
+            pos += translate;
 
             vertices.push_back(pos.x);
             vertices.push_back(pos.y);

@@ -11,13 +11,14 @@ struct Planet{
         FRONT, BACK, LEFT, RIGHT, UP, DOWN
     };
 
-    Planet();
+    Planet(std::string diffusePath, std::string specularPath, glm::vec3 pos = glm::vec3(0), float radius = 1.f);
     ~Planet();
 
     Face face;
 
     int width, height;
     float radius;
+    glm::vec3 position;
     std::vector<int> triangleList;
     std::vector<float> uvs;
     std::vector<float> vertices;
@@ -34,7 +35,7 @@ struct Planet{
 
     void render(GLenum mode = GL_TRIANGLES);
 
-    void createFace(glm::vec3 startPos, Face f);
+    void createFace(glm::vec3 startPos, Face f, glm::vec3 translate = glm::vec3(0));
 
     void computeHeight(glm::vec3 &vertex);
     void mapCubeToSphere(glm::vec3 &position);

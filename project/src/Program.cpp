@@ -7,26 +7,12 @@
 
 #include "Shader.hpp"
 
-Program::Program() :
+Program::Program(const std::string& vertPath, const std::string& geomPath, const std::string& fragPath) :
     id(glCreateProgram())
 {
     if(!id)
         throw std::runtime_error("Program : glCreateProgram fail and return 0 !");
-}
 
-
-Program::~Program()
-{
-    glDeleteProgram(id);
-}
-
-GLuint Program::getProgramId()
-{
-    return id;
-}
-
-void Program::loadProgram(const std::string& vertPath, const std::string& geomPath, const std::string& fragPath)
-{
     if(!vertPath.empty())
     {
         GLuint vertShaderID = compileShaderFromFile(GL_VERTEX_SHADER, vertPath.c_str());
@@ -49,6 +35,17 @@ void Program::loadProgram(const std::string& vertPath, const std::string& geomPa
     // TODO
     // Warning normally we need to detah shader after attach and after quit the program !!!
     // See RAII idiom to do this.
+}
+
+
+Program::~Program()
+{
+    glDeleteProgram(id);
+}
+
+GLuint Program::getProgramId()
+{
+    return id;
 }
 
 void Program::checkLinkError()

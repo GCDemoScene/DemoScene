@@ -19,7 +19,16 @@
 DemoScene::DemoScene()
     : FPS(60), WINDOW_WIDTH(1024), WINDOW_HEIGHT(768), FRAMERATE_MILLISECONDS(1000/FPS), running(true),
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "DemoScene : Birds around the world !", sf::Style::Default, sf::ContextSettings(32)),
-    glewCode(glewInit()), state(State::PLANET)
+    glewCode(glewInit()), state(State::PLANET),
+    planet("./project/resources/textures/earthTexDiffuse.png", "./project/resources/textures/earthTexSpecular.png"),
+    satellite("./project/resources/textures/earthTexDiffuse.png", "./project/resources/textures/earthTexSpecular.png", glm::vec3(-4.f, 0.f, 0.f), .5f),
+    programPlanet(Program("./project/src/shaders/planet.vert", "", "./project/src/shaders/planet.frag")),
+    programPointLight(Program("./project/src/shaders/pointLight.vert", "", "./project/src/shaders/pointLight.frag")),
+    programDirectionalLight(Program("./project/src/shaders/directionalLight.vert", "", "./project/src/shaders/directionalLight.frag")),
+    programSpotLight(Program("./project/src/shaders/spotLight.vert", "", "./project/src/shaders/spotLight.frag")),
+    programShadowMap(Program("./project/src/shaders/shadowMap.vert", "", "./project/src/shaders/shadowMap.frag")),
+    programShadowCubeMap(Program("./project/src/shaders/shadowCubeMap.vert", "./project/src/shaders/shadowCubeMap.geom", "./project/src/shaders/shadowCubeMap.frag")),
+    programSkybox(Program("./project/src/shaders/skybox.vert", "", "./project/src/shaders/skybox.frag"))
 {
     if(glewCode != GLEW_OK)
     {
@@ -147,23 +156,22 @@ DemoScene::DemoScene()
     // Back to the default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Create all shaders programs needed for OpenGL
-    programActor.loadProgram("./project/src/shaders/actor.vert", "", "./project/src/shaders/actor.frag");
-        // Create usefull uniform
-        timeLocation = glGetUniformLocation(programActor.id, "Time");
-        mvpLocation = glGetUniformLocation(programActor.id, "MVP");
-        diffuseLocation = glGetUniformLocation(programActor.id, "Diffuse");
-        specularLocation = glGetUniformLocation(programActor.id, "Specular");
-        specularPowerLocation = glGetUniformLocation(programActor.id, "SpecularPower");
-        discretizationLocation = glGetUniformLocation(programActor.id, "Discretization");
+    // Create usefull uniform
+    // Planet
+        timeLocation = glGetUniformLocation(programPlanet.id, "Time");
+        mvpLocation = glGetUniformLocation(programPlanet.id, "MVP");
+        diffuseLocation = glGetUniformLocation(programPlanet.id, "Diffuse");
+        specularLocation = glGetUniformLocation(programPlanet.id, "Specular");
+        specularPowerLocation = glGetUniformLocation(programPlanet.id, "SpecularPower");
+        discretizationLocation = glGetUniformLocation(programPlanet.id, "Discretization");
+        radiusLocation = glGetUniformLocation(programPlanet.id, "Radius");
+        positionLocation = glGetUniformLocation(programPlanet.id, "PlanetPosition");
         
-        glProgramUniform1i(programActor.id, diffuseLocation, 0);
-        glProgramUniform1i(programActor.id, specularLocation, 1);
-        glProgramUniform1f(programActor.id, specularPowerLocation, 25);
-        glProgramUniform2i(programActor.id, discretizationLocation, planet.width, planet.height);
+        glProgramUniform1i(programPlanet.id, diffuseLocation, 0);
+        glProgramUniform1i(programPlanet.id, specularLocation, 1);
+        glProgramUniform1f(programPlanet.id, specularPowerLocation, 25);
 
     // PointLight
-    programPointLight.loadProgram("./project/src/shaders/pointLight.vert", "", "./project/src/shaders/pointLight.frag");
         pl_colorBufferLocation = glGetUniformLocation(programPointLight.id, "ColorBuffer");
         pl_normalBufferLocation = glGetUniformLocation(programPointLight.id, "NormalBuffer");
         pl_depthBufferLocation = glGetUniformLocation(programPointLight.id, "DepthBuffer");
@@ -178,7 +186,6 @@ DemoScene::DemoScene()
         glProgramUniform1i(programPointLight.id, pl_depthBufferLocation, 2);
 
      // DirectionalLight
-    programDirectionalLight.loadProgram("./project/src/shaders/directionalLight.vert", "", "./project/src/shaders/directionalLight.frag");
         dl_colorBufferLocation = glGetUniformLocation(programDirectionalLight.id, "ColorBuffer");
         dl_normalBufferLocation = glGetUniformLocation(programDirectionalLight.id, "NormalBuffer");
         dl_depthBufferLocation = glGetUniformLocation(programDirectionalLight.id, "DepthBuffer");
@@ -192,7 +199,6 @@ DemoScene::DemoScene()
         glProgramUniform1i(programDirectionalLight.id, dl_depthBufferLocation, 2);
 
     // SpotLight
-    programSpotLight.loadProgram("./project/src/shaders/spotLight.vert", "", "./project/src/shaders/spotLight.frag");
         sl_colorBufferLocation = glGetUniformLocation(programSpotLight.id, "ColorBuffer");
         sl_normalBufferLocation = glGetUniformLocation(programSpotLight.id, "NormalBuffer");
         sl_depthBufferLocation = glGetUniformLocation(programSpotLight.id, "DepthBuffer");
@@ -206,16 +212,12 @@ DemoScene::DemoScene()
         glProgramUniform1i(programSpotLight.id, sl_depthBufferLocation, 2);
 
     // ShadowMap
-    programShadowMap.loadProgram("./project/src/shaders/shadowMap.vert", "", "./project/src/shaders/shadowMap.frag");
         objectToLightScreenLocation = glGetUniformLocation(programShadowMap.id, "ObjectToLightScreen");
     
     // ShadowCubeMap
-    programShadowCubeMap.loadProgram("./project/src/shaders/shadowCubeMap.vert", "./project/src/shaders/shadowCubeMap.geom", "./project/src/shaders/shadowCubeMap.frag");
         objectToLightScreen2Location = glGetUniformLocation(programShadowCubeMap.id, "ObjectToLightScreen");
 
     // Skybox
-    programSkybox.loadProgram("./project/src/shaders/skybox.vert", "", "./project/src/shaders/skybox.frag");
-        // Create usefull uniform
         skyboxCubeMapLocation = glGetUniformLocation(programSkybox.id, "CubeMap");
         skyboxMVPLocation = glGetUniformLocation(programSkybox.id, "MVP");
         
@@ -258,7 +260,7 @@ void DemoScene::runScene()
         clock.restart();
 
         // Upload general uniform
-        glProgramUniform1i(programActor.id, timeLocation, t.getElapsedTime().asMilliseconds());
+        glProgramUniform1i(programPlanet.id, timeLocation, t.getElapsedTime().asMilliseconds());
 
         /// Events ( Handle input )
         event(last_x, last_y, hasClicked);
@@ -399,7 +401,7 @@ void DemoScene::render(float deltaTime)
 
     // Upload uniforms
     // Send transformations
-    glProgramUniformMatrix4fv(programActor.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
+    glProgramUniformMatrix4fv(programPlanet.id, mvpLocation, 1, 0, glm::value_ptr(mvp));
     glProgramUniformMatrix4fv(programSkybox.id, skyboxMVPLocation, 1, 0, glm::value_ptr(mvp));
     glProgramUniformMatrix4fv(programPointLight.id, pl_mvpLocation, 1, 0, glm::value_ptr(mvp));
     
@@ -511,6 +513,7 @@ void DemoScene::render(float deltaTime)
         glClear(GL_DEPTH_BUFFER_BIT);
         // Render Actor
         planet.render();
+        satellite.render();
     }
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     
@@ -554,6 +557,7 @@ void DemoScene::render(float deltaTime)
         glClear(GL_DEPTH_BUFFER_BIT);
         // Render vaos
         planet.render();
+        satellite.render();
     }
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -601,6 +605,7 @@ void DemoScene::render(float deltaTime)
         glClear(GL_DEPTH_BUFFER_BIT);
         // Render vaos
         planet.render();
+        satellite.render();
     }
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -623,8 +628,15 @@ void DemoScene::render(float deltaTime)
     // Clear the front buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(programActor.id);
+    glUseProgram(programPlanet.id);
+        glProgramUniform2i(programPlanet.id, discretizationLocation, planet.width, planet.height);
+        glProgramUniform3f(programPlanet.id, positionLocation, planet.position.x, planet.position.y, planet.position.z);
+        glProgramUniform1f(programPlanet.id, radiusLocation, planet.radius);
         planet.render();
+        glProgramUniform2i(programPlanet.id, discretizationLocation, satellite.width, satellite.height);
+        glProgramUniform3f(programPlanet.id, positionLocation, satellite.position.x, satellite.position.y, satellite.position.z);
+        glProgramUniform1f(programPlanet.id, radiusLocation, satellite.radius);
+        satellite.render();
 
     /////////////////////////////////////////////////
     /// Need the GL_DEPTH_TEST to draw the skybox ///
@@ -640,8 +652,11 @@ void DemoScene::render(float deltaTime)
 
     // don't use color buffer
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glUseProgram(programActor.id);
+    glUseProgram(programPlanet.id);
+        glProgramUniform2i(programPlanet.id, discretizationLocation, planet.width, planet.height);
         planet.render();
+        glProgramUniform2i(programPlanet.id, discretizationLocation, satellite.width, satellite.height);
+        satellite.render();
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     //////////////////////////

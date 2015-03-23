@@ -64,6 +64,7 @@ private:
     Camera camera;
     Skybox skybox;
     Planet planet;
+    Planet satellite;
     static const int nbSun = 1;
     DirectionalLight sun[nbSun];
     static const int nbBirds = 5;
@@ -84,6 +85,7 @@ private:
     int quad_triangleCount = 2;
     int quad_triangleList[6] {0, 1, 2, 2, 1, 3};
     float quad_vertices[8] {-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0};
+
     // ---------------
     // buffers
     // ---------------
@@ -115,7 +117,7 @@ private:
     // -----------------
     // Programs shaders
     // -----------------
-    Program programActor;
+    Program programPlanet;
     Program programPointLight;
     Program programDirectionalLight;
     Program programSpotLight;
@@ -132,6 +134,8 @@ private:
     GLuint specularLocation;
     GLuint specularPowerLocation;
     GLuint discretizationLocation;
+    GLuint radiusLocation;
+    GLuint positionLocation;
 
     GLuint pl_colorBufferLocation;
     GLuint pl_normalBufferLocation;
