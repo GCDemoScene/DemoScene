@@ -67,9 +67,9 @@ private:
     Planet satellite;
     static const int nbSun = 1;
     DirectionalLight sun[nbSun];
-    static const int nbBirds = 5;
+    static const int nbBirds = 1;
     PointLight birds[nbBirds];
-    static const int nbRobots = 2;
+    static const int nbRobots = 1;
     SpotLight robots[nbRobots];
 
     //////////////////
