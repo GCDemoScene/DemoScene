@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-Camera::Camera()
+CameraTrackball::CameraTrackball()
 {
     m_phi = 3.14/2.f;
     m_theta = 3.14/2.f;
@@ -8,12 +8,12 @@ Camera::Camera()
     compute();
 }
 
-Camera::~Camera()
+CameraTrackball::~CameraTrackball()
 {
 
 }
 
-void Camera::zoom(float factor)
+void CameraTrackball::zoom(float factor)
 {
    m_radius += factor * m_radius;
    if (m_radius < 0.1)
@@ -24,7 +24,7 @@ void Camera::zoom(float factor)
    compute();
 }
 
-void Camera::turn(float phi, float theta)
+void CameraTrackball::turn(float phi, float theta)
 {
     m_theta += 1.f * theta;
     m_phi   -= 1.f * phi;
@@ -39,7 +39,7 @@ void Camera::turn(float phi, float theta)
     compute();
 }
 
-void Camera::pan(float x, float y)
+void CameraTrackball::pan(float x, float y)
 {
     glm::vec3 up(0.f, m_phi < M_PI ? 1.f : -1.f, 0.f);
     glm::vec3 fwd = glm::normalize(o - eye);
@@ -55,7 +55,7 @@ void Camera::pan(float x, float y)
 }
 
 // private methods
-void Camera::compute()
+void CameraTrackball::compute()
 {
     eye.x = cos(m_theta) * sin(m_phi) * m_radius + o.x;
     eye.y = cos(m_phi) * m_radius + o.y ;

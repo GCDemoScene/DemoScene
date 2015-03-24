@@ -270,10 +270,10 @@ void DemoScene::runScene()
         event(last_x, last_y, hasClicked);
 
         /// Update
-        update();
+        update(time);
 
         /// Draw
-        render(t.getElapsedTime().asMilliseconds());
+        render(time);
 
         checkError("End loop");
 
@@ -325,7 +325,7 @@ void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
                 break;
 
             case sf::Event::MouseWheelMoved :
-                camera.zoom(-event.mouseWheel.delta * .2f);
+                cameraTrackball.zoom(-event.mouseWheel.delta * .2f);
                 break;
 
             default:
@@ -338,7 +338,7 @@ void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
             current_y = sf::Mouse::getPosition(window).y;
             auto dX = current_x - last_x;
             auto dY = current_y - last_y;
-            camera.turn(dY * .007f, dX * .007f);
+            cameraTrackball.turn(dY * .007f, dX * .007f);
             last_x = current_x;
             last_y = current_y;
         }
@@ -349,44 +349,100 @@ void DemoScene::event(int &last_x, int &last_y, bool &hasClicked)
             current_y = sf::Mouse::getPosition(window).y;
             auto dX = current_x - last_x;
             auto dY = current_y - last_y;
-            camera.pan(dX * .0007f, dY * .0007f);
+            cameraTrackball.pan(dX * .0007f, dY * .0007f);
             last_x = current_x;
             last_y = current_y;
         }
     }
 }
 
-void DemoScene::update()
+void DemoScene::update(float deltaTime)
 {
     switch (state) {
         case State::PLANET :
-            std::cout << "State : Planet" << std::endl;
-            changeState(State::ZOOMPLANET);
+            if(deltaTime > 24000)
+                changeState(State::ZOOMPLANET);
+
+//            cameraTrackball.turn(0, -deltaTime * 0.0000001);
+//            cameraTrackball.zoom(-0.0005);
+
+            cameraFreeFly.m_Position.x = cameraFreeFly.m_Position.x * cos(-0.001) - cameraFreeFly.m_Position.z * sin(-0.001);
+            cameraFreeFly.m_Position.y = cameraFreeFly.m_Position.y;
+            cameraFreeFly.m_Position.z = cameraFreeFly.m_Position.x * sin(-0.001) + cameraFreeFly.m_Position.z * cos(-0.001);
+
+
+            cameraFreeFly.moveFront(0.0052);
+            cameraFreeFly.rotateLeft(0.055);
+
+            std::cout << "STATE planet" <<std::endl;
             break;
 
         case State::ZOOMPLANET :
-            std::cout << "State : ZoomPlanet" << std::endl;
-            changeState(State::BIRDS);
+            if(deltaTime > 30000)
+                changeState(State::BIRDS);
+
+            cameraFreeFly.rotateUp(0.05);
+            cameraFreeFly.rotateLeft(0.055);
+            cameraFreeFly.moveFront(0.001);
+
+//            if(deltaTime < 27000)
+//            {
+//                cameraFreeFly.rotateUp(0.5);
+//                cameraFreeFly.rotateLeft(0.5);
+//                cameraFreeFly.moveFront(0.001);
+//            }
+
+//            if(deltaTime > 27000)
+//            {
+
+//                cameraFreeFly.rotateLeft(0.05);
+//                cameraFreeFly.rotateUp(-0.05);
+//            }
+
+            std::cout << "STATE zoom planet" <<std::endl;
+//            cameraTrackball.zoom(-0.001);
             break;
 
         case State::BIRDS :
-            std::cout << "State : Birds" << std::endl;
-            changeState(State::FOLLOWBIRDS);
+            if(deltaTime > 40000)
+                changeState(State::FOLLOWBIRDS);
+
+            cameraFreeFly.moveFront(0.005);
+            cameraFreeFly.m_Position.y += 0.004;
+            cameraFreeFly.rotateUp(-0.15);
+            if(deltaTime > 35000)
+            {
+                cameraFreeFly.rotateLeft(-0.08);
+                cameraFreeFly.m_Position.y += 0.002;
+            }
+
+            std::cout << "STATE bird" <<std::endl;
+//            cameraTrackball.o = glm::vec3(0, 1, -1);
             break;
 
         case State::FOLLOWBIRDS :
-            std::cout << "State : FollowBirds" << std::endl;
-            changeState(State::BYEBYEBIRDS);
+            if(deltaTime > 44000)
+                changeState(State::BYEBYEBIRDS);
+
+            cameraFreeFly.rotateUp(-0.1);
             break;
 
         case State::BYEBYEBIRDS :
-           // std::cout << "State : ByeByeBirds" << std::endl;
+            cameraFreeFly.m_Position.x = cameraFreeFly.m_Position.x * cos(-0.001) - cameraFreeFly.m_Position.z * sin(-0.001);
+            cameraFreeFly.m_Position.y = cameraFreeFly.m_Position.y;
+            cameraFreeFly.m_Position.z = cameraFreeFly.m_Position.x * sin(-0.001) + cameraFreeFly.m_Position.z * cos(-0.001);
+
+
+            cameraFreeFly.moveFront(-0.0052);
+            cameraFreeFly.rotateLeft(-0.055);
 //            changeState(State::PLANET);
             break;
 
         default:
             break;
     }
+
+//    std::cout << "camera eye : " << glm::to_string(camera.eye) << "\n orientation : " << glm::to_string(camera.o) << "\n up : " << glm::to_string(camera.up) << std::endl;
 }
 
 void DemoScene::render(float deltaTime)
@@ -397,7 +453,8 @@ void DemoScene::render(float deltaTime)
 
     // Get camera matrices
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT, 0.1f, 100.f);
-    glm::mat4 worldToView = glm::lookAt(camera.eye, camera.o, camera.up);
+//    glm::mat4 worldToView = glm::lookAt(cameraTrackball.eye, cameraTrackball.o, cameraTrackball.up);
+    glm::mat4 worldToView = cameraFreeFly.getViewMatrix();
     glm::mat4 objectToWorld;
     glm::mat4 mvp = projection * worldToView * objectToWorld;
     // Compute the inverse worldToScreen matrix
@@ -410,9 +467,12 @@ void DemoScene::render(float deltaTime)
     glProgramUniformMatrix4fv(programPointLight.id, pl_mvpLocation, 1, 0, glm::value_ptr(mvp));
     
     // Send camera position
-    glProgramUniform3f(programPointLight.id, pl_cameraPositionLocation, camera.eye.x, camera.eye.y, camera.eye.z);
-    glProgramUniform3f(programDirectionalLight.id, dl_cameraPositionLocation, camera.eye.x, camera.eye.y, camera.eye.z);
-    glProgramUniform3f(programSpotLight.id, sl_cameraPositionLocation, camera.eye.x, camera.eye.y, camera.eye.z);
+//    glProgramUniform3f(programPointLight.id, pl_cameraPositionLocation, cameraTrackball.eye.x, cameraTrackball.eye.y, cameraTrackball.eye.z);
+//    glProgramUniform3f(programDirectionalLight.id, dl_cameraPositionLocation, cameraTrackball.eye.x, cameraTrackball.eye.y, cameraTrackball.eye.z);
+//    glProgramUniform3f(programSpotLight.id, sl_cameraPositionLocation, cameraTrackball.eye.x, cameraTrackball.eye.y, cameraTrackball.eye.z);
+    glProgramUniform3f(programPointLight.id, pl_cameraPositionLocation, cameraFreeFly.m_Position.x, cameraFreeFly.m_Position.y, cameraFreeFly.m_Position.z);
+    glProgramUniform3f(programDirectionalLight.id, dl_cameraPositionLocation, cameraFreeFly.m_Position.x, cameraFreeFly.m_Position.y, cameraFreeFly.m_Position.z);
+    glProgramUniform3f(programSpotLight.id, sl_cameraPositionLocation, cameraFreeFly.m_Position.x, cameraFreeFly.m_Position.y, cameraFreeFly.m_Position.z);
 
     // screen to world space
     glProgramUniformMatrix4fv(programPointLight.id, pl_inverseProjLocation, 1, 0, glm::value_ptr(inverseProj));

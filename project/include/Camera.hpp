@@ -1,11 +1,11 @@
 #pragma once
 #include "glm/glm.hpp"
 
-class Camera
+class CameraTrackball
 {
 public:
-    Camera();
-    ~Camera();
+    CameraTrackball();
+    ~CameraTrackball();
 
     void zoom(float factor);
     void turn(float phi, float theta);

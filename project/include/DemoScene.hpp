@@ -5,6 +5,7 @@
 
 #include "Program.hpp"
 #include "Camera.hpp"
+#include "CameraFreeFly.hpp"
 #include "Skybox.hpp"
 #include "Planet.hpp"
 
@@ -35,7 +36,7 @@ private:
     };
 
     void event(int &last_x, int &last_y, bool &hasClicked);
-    void update();
+    void update(float deltaTime);
     void render(float deltaTime);
 
     const uint FPS;
@@ -61,7 +62,8 @@ private:
     //  Render
     ////////////////
     // Actors (Actors must be created before shaders programs. Program can be refered some Actors attributes)
-    Camera camera;
+    CameraTrackball cameraTrackball;
+    CameraFreeFly cameraFreeFly;
     Skybox skybox;
     Planet planet;
     Planet satellite;
